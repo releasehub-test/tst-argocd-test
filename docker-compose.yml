@@ -1,0 +1,21 @@
+# Tunel wychodzący do ArgoCD stojącego w klastrze Kubernetes Docker Desktop (tryb kind).
+#
+# ArgoCD żyje w namespace `argocd`, serwer w trybie insecure (HTTP) wystawiony jako NodePort 30080
+# na węźle `desktop-control-plane`, który wisi w sieci docker `kind`. Tunel łączy się z nim po
+# nazwie kontenera, więc przeżywa zmianę adresu IP węzła.
+#
+# Quick tunnel nadaje LOSOWY adres *.trycloudflare.com przy każdym starcie — po restarcie trzeba
+# go odczytać (`docker logs argocd-cloudflared`) i wpisać na nowo w Release Hub Integrations →
+# Endpointy HTTP.
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: argocd-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://desktop-control-plane:30080
+    networks:
+      - kind
+
+networks:
+  kind:
+    external: true

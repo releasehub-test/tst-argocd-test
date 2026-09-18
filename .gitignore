@@ -1,0 +1,6 @@
+# To repo jest obserwowane przez ArgoCD i wypychane na GitHuba — nie może zawierać żadnych
+# poświadczeń. Hasło admina i token konta `releasehub` leżą w
+# ..\argocd-credentials.txt, czyli POZA katalogiem repozytorium.
+credentials.txt
+*.token
+.idea/

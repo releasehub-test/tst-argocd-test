@@ -1,0 +1,17 @@
+# Usługa dla Deploymentu z deployment.yaml — obecna po to, żeby Application miała w ArgoCD
+# więcej niż jeden zasób i było widać kaskadę stanu Healthy/Degraded w UI.
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-hub-test-module
+  namespace: default
+  labels:
+    app: release-hub-test-module
+spec:
+  type: ClusterIP
+  selector:
+    app: release-hub-test-module
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

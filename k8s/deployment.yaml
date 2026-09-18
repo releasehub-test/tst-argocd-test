@@ -1,0 +1,46 @@
+# Manifest wdrażany przez ArgoCD w scenariuszach DEPLOY-CICD-ARGOCD-*.
+#
+# Adnotacja `releasehub.test/revision` jest celowo ustawiona na stałą wartość placeholdera:
+# przy każdej instalacji z Release Huba ArgoCD synchronizuje repo na konkretny SHA, więc to
+# TREŚĆ TEGO PLIKU W DANYM COMMICIE decyduje, co wyląduje w klastrze. Zmieniaj ją przy kolejnych
+# commitach (albo zmieniaj `image`), żeby było widać w ArgoCD, że sync faktycznie przeniósł stan
+# na inną rewizję — bez tego dwa różne SHA dają identyczny obiekt i rollback wygląda jak no-op.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-hub-test-module
+  namespace: default
+  labels:
+    app: release-hub-test-module
+  annotations:
+    releasehub.test/revision: "v1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: release-hub-test-module
+  template:
+    metadata:
+      labels:
+        app: release-hub-test-module
+      annotations:
+        releasehub.test/revision: "v1"
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 2
+            periodSeconds: 5

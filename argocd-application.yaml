@@ -1,0 +1,32 @@
+# ArgoCD Application dla scenariuszy DEPLOY-CICD-ARGOCD-*.
+#
+# Obserwowane repo to `releasehub-test/tst-argocd-test` — TO SAMO repo musi zostać dodane
+# w pluginie jako repozytorium Git modułu testowego. Plugin wysyła w `revision` SHA commita repo
+# modułu, więc gdyby Application patrzyła gdzie indziej, sync zwróciłby błąd o nieznanej rewizji
+# i wyglądałoby to na błąd pluginu, a nie konfiguracji.
+#
+# Zastosowanie (host nie ma dostępu do kube-apiservera przez Avast — patrz README):
+#   docker cp argocd-application.yaml desktop-control-plane:/tmp/app.yaml
+#   docker exec desktop-control-plane kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f /tmp/app.yaml
+#
+# BRAK `syncPolicy.automated` jest celowy: instalacja z Release Huba wywołuje sync jawnie przez
+# API z konkretnym SHA. Auto-sync cofałby klaster do stanu z gałęzi `targetRevision` i psuł
+# scenariusz rollbacku (DEPLOY-CICD-ARGOCD-003) — rollback polega właśnie na tym, że sync idzie
+# na SHA starszy niż czoło gałęzi.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: module-test-deployment
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/releasehub-test/tst-argocd-test.git
+    targetRevision: main
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
