@@ -13,7 +13,7 @@ metadata:
   labels:
     app: release-hub-test-module
   annotations:
-    releasehub.test/revision: "v1"
+    releasehub.test/revision: "v2"
 spec:
   replicas: 1
   selector:
@@ -24,7 +24,7 @@ spec:
       labels:
         app: release-hub-test-module
       annotations:
-        releasehub.test/revision: "v1"
+        releasehub.test/revision: "v2"
     spec:
       containers:
         - name: app
